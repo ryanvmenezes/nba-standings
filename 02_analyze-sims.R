@@ -50,19 +50,24 @@ matchups = expand_grid(
   separate(slug1, sep = '_', into = c('team1', 'conf1', 'seed1')) %>%
   separate(slug2, sep = '_', into = c('team2', 'conf2', 'seed2')) %>%
   mutate(seed1 = as.numeric(seed1), seed2 = as.numeric(seed2)) %>%
+  left_join(seeds %>% rename_all(~str_c(.x, '1'))) %>%
+  left_join(seeds %>% rename_all(~str_c(.x, '2'))) %>%
   filter(
     team1 != team2,
     conf1 == conf2,
+  ) %>% 
+  filter(
     (seed1 == 3 & seed2 == 6) | (seed1 == 4 & seed2 == 5) | (seed1 == 7 & seed2 == 8) | (seed1 == 9 & seed2 == 10)
   ) %>%
-  left_join(seeds %>% rename_all(~str_c(.x, '1'))) %>%
-  left_join(seeds %>% rename_all(~str_c(.x, '2'))) %>%
   transmute(
     conf = conf1,
     seed1, team1, seed2, team2,
     prob = (n1 / n.sims) * (n2 / n.sims)
   ) %>%
-  arrange(desc(conf), seed1, -prob)
+  arrange(desc(conf), seed1, -prob) %>% 
+  group_by(conf, seed1, seed2) %>% 
+  mutate(prob = prob / sum(prob)) %>% 
+  ungroup()
 
 matchups
 
