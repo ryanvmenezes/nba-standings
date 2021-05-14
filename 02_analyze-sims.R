@@ -94,3 +94,11 @@ update.summary
 
 update.summary %>% sheet_write(ss = sheet.id, sheet = 'last-updated')
 range_autofit(ss = sheet.id, sheet = 'last-updated')
+
+remaining = proj %>% 
+  filter(is.na(score1) | is.na(score2)) %>% 
+  select(date, away = team2, prob.away = raptor_prob2, home = team1, prob.home = raptor_prob1)
+
+remaining
+
+remaining %>% sheet_write(ss = sheet.id, sheet = 'remaining')
